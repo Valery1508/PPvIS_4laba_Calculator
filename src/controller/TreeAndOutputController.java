@@ -44,7 +44,6 @@ public class TreeAndOutputController {
             currentRoot = sign;
         }
         currentRoot.getChildren().add(new TreeItem<>(listsOfTree.get(digit).get(0)));
-        //currentRoot.setExpanded(true);
 
         if(listsOfTree.get(digit).size() ==4){
             currentRoot.getChildren().add(new TreeItem<>(listsOfTree.get(digit).get(2)));

@@ -21,6 +21,7 @@ public class CalculatorController {
             list = new ArrayList<>();
             list.add(input);
             calculate(input);
+
         if (!plusSign) {
             bufferExpression.insert(0, '-');
         }
@@ -58,85 +59,7 @@ public class CalculatorController {
         bufferExpression.delete(0, bufferExpression.length());
         bufferExpression.append(input);
 
-        for (int i = 0; i < bufferExpression.length(); i++) {
-            if (bufferExpression.charAt(i) == '(') {
-                startBracket = i;
-            }
-            if (bufferExpression.charAt(i) == 's') {
-                basicBracket = false;
-                calculateSubStringForSinglePowsSqrt(i, 3, 4);
-                sqrtFunction(bufferExpression);
-                updateInput(mainString);
-            }else if (bufferExpression.charAt(i) == '^') {
-                if(bufferExpression.charAt(i+1) == '-' && bufferExpression.charAt(i+2) == '1') {    //  1/x  ~ ()^-1
-                    basicBracket = false;
-                    calculateSubStringForSinglePowsSqrt(i, 2, 3);
-                    reverseFunction(bufferExpression);
-                    updateInput(mainString);
-                } else if(bufferExpression.charAt(i+1) == '2'){     // ()^2
-                    basicBracket = false;
-                    calculateSubStringForSinglePowsSqrt(i, 1, 2);
-                    powTwoThreeFunction(bufferExpression, 2);
-                    updateInput(mainString);
-                } else if(bufferExpression.charAt(i+1) == '3'){     // ()^3
-                    basicBracket = false;
-                    calculateSubStringForSinglePowsSqrt(i, 1, 2);
-                    powTwoThreeFunction(bufferExpression, 3);
-                    updateInput(mainString);
-                } else {    // ()^()
-                    basicBracket = false;
-
-                    String subStrDegree = "";
-                    int bracketCounter = 0;
-                    for (int j = i + 1; j < bufferExpression.length(); j++) {
-                        if (bufferExpression.charAt(j) == '(') {
-                            bracketCounter++;
-                        }
-                        if (bufferExpression.charAt(j) == ')') {
-                            bracketCounter--;
-                        }
-                        if (bracketCounter == 0) {
-                            String currentSubString = bufferExpression.substring(i + 2, j);
-
-                            bufferExpression.delete(i + 1, j + 1);
-                            StringBuilder mainString = new StringBuilder(bufferExpression);
-                            calculate(currentSubString);
-                            mainString.insert(i + 1, bufferExpression.toString());
-                            bufferExpression.delete(0, bufferExpression.length());
-                            bufferExpression.insert(0, mainString.toString());
-
-                            try {
-                                Float.parseFloat(currentSubString);
-                            } catch (Exception e) {
-                                list.add(bufferExpression.toString());
-                            }
-                            subStrDegree += bufferExpression.charAt(i + 1);
-
-                            for (int k = i + 2; k < bufferExpression.length(); k++) {
-                                if ((bufferExpression.charAt(k) == '+') || (bufferExpression.charAt(k) == '-') ||
-                                        (bufferExpression.charAt(k) == '*') || (bufferExpression.charAt(k) == '/') ||
-                                        (bufferExpression.charAt(k) == '(') || (bufferExpression.charAt(k) == ')') || (bufferExpression.charAt(k) == '%')) {
-                                    break;
-                                }
-                                subStrDegree += bufferExpression.charAt(k);
-                            }
-                            break;
-                        }
-                    }
-                    calculateSubStringPow(i, 0, 1, subStrDegree.length());
-
-                    if (!plusSign && subStrDegree.charAt(0) != '-') {
-                        subStrDegree = "-" + subStrDegree;
-                    }
-                    exponentiation(bufferExpression, subStrDegree);
-                    updateInput(mainString);
-                }
-            } else if (bufferExpression.charAt(i) == ')' && (i == bufferExpression.length() - 1 || (bufferExpression.charAt(i + 1) != 's' && bufferExpression.charAt(i + 1) != '^'))) {
-                basicBracket = true;
-                calculateSubString(i, 0, 0, 1);
-                updateInput(mainString);
-            }
-        }
+        checkNestingAndSpecialFunc();
 
         for (int i = 0; i < bufferExpression.length(); i++) {
             if (bufferExpression.charAt(i) == '*') {
@@ -224,6 +147,88 @@ public class CalculatorController {
         for (int i = 0; i < bufferExpression.length(); i++) {
             if ((bufferExpression.charAt(i) == '+') || (bufferExpression.charAt(i) == '-')) {
                 calculate(bufferExpression.toString());
+            }
+        }
+    }
+
+    private void checkNestingAndSpecialFunc(){
+        for (int i = 0; i < bufferExpression.length(); i++) {
+            if (bufferExpression.charAt(i) == '(') {
+                startBracket = i;
+            }
+            if (bufferExpression.charAt(i) == 's') {
+                basicBracket = false;
+                calculateSubStringForSinglePowsSqrt(i, 3, 4);
+                sqrtFunction(bufferExpression);
+                updateInput(mainString);
+            }else if (bufferExpression.charAt(i) == '^') {
+                if(bufferExpression.charAt(i+1) == '-' && bufferExpression.charAt(i+2) == '1') {    //  1/x  ~ ()^-1
+                    basicBracket = false;
+                    calculateSubStringForSinglePowsSqrt(i, 2, 3);
+                    reverseFunction(bufferExpression);
+                    updateInput(mainString);
+                } else if(bufferExpression.charAt(i+1) == '2'){     // ()^2
+                    basicBracket = false;
+                    calculateSubStringForSinglePowsSqrt(i, 1, 2);
+                    powTwoThreeFunction(bufferExpression, 2);
+                    updateInput(mainString);
+                } else if(bufferExpression.charAt(i+1) == '3'){     // ()^3
+                    basicBracket = false;
+                    calculateSubStringForSinglePowsSqrt(i, 1, 2);
+                    powTwoThreeFunction(bufferExpression, 3);
+                    updateInput(mainString);
+                } else {    // ()^()
+                    basicBracket = false;
+
+                    String subStrDegree = "";
+                    int bracketCounter = 0;
+                    for (int j = i + 1; j < bufferExpression.length(); j++) {
+                        if (bufferExpression.charAt(j) == '(') {
+                            bracketCounter++;
+                        }
+                        if (bufferExpression.charAt(j) == ')') {
+                            bracketCounter--;
+                        }
+                        if (bracketCounter == 0) {
+                            String currentSubString = bufferExpression.substring(i + 2, j);
+
+                            bufferExpression.delete(i + 1, j + 1);
+                            StringBuilder mainString = new StringBuilder(bufferExpression);
+                            calculate(currentSubString);
+                            mainString.insert(i + 1, bufferExpression.toString());
+                            bufferExpression.delete(0, bufferExpression.length());
+                            bufferExpression.insert(0, mainString.toString());
+
+                            try {
+                                Float.parseFloat(currentSubString);
+                            } catch (Exception e) {
+                                list.add(bufferExpression.toString());
+                            }
+                            subStrDegree += bufferExpression.charAt(i + 1);
+
+                            for (int k = i + 2; k < bufferExpression.length(); k++) {
+                                if ((bufferExpression.charAt(k) == '+') || (bufferExpression.charAt(k) == '-') ||
+                                        (bufferExpression.charAt(k) == '*') || (bufferExpression.charAt(k) == '/') ||
+                                        (bufferExpression.charAt(k) == '(') || (bufferExpression.charAt(k) == ')') || (bufferExpression.charAt(k) == '%')) {
+                                    break;
+                                }
+                                subStrDegree += bufferExpression.charAt(k);
+                            }
+                            break;
+                        }
+                    }
+                    calculateSubStringPow(i, 0, 1, subStrDegree.length());
+
+                    if (!plusSign && subStrDegree.charAt(0) != '-') {
+                        subStrDegree = "-" + subStrDegree;
+                    }
+                    exponentiation(bufferExpression, subStrDegree);
+                    updateInput(mainString);
+                }
+            } else if (bufferExpression.charAt(i) == ')' && (i == bufferExpression.length() - 1 || (bufferExpression.charAt(i + 1) != 's' && bufferExpression.charAt(i + 1) != '^'))) {
+                basicBracket = true;
+                calculateSubString(i, 0, 0, 1);
+                updateInput(mainString);
             }
         }
     }
